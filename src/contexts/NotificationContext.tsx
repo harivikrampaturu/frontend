@@ -37,7 +37,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       {notifications.length > 0 && (
         <Flashbar
           items={notifications}
-          onDismiss={({ detail }) => removeNotification(detail.id)}
         />
       )}
       {children}

@@ -11,7 +11,8 @@ import {
   Input,
   Select,
   Textarea,
-  Grid
+  Grid,
+  Box
 } from '@cloudscape-design/components';
 
 interface Task {
@@ -136,8 +137,8 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ projectId }) => {
                     header: "Priority",
                     content: item => (
                       <Box color={
-                        item.priority === 'HIGH' ? 'red' :
-                        item.priority === 'MEDIUM' ? 'orange' : 'green'
+                        item.priority === 'HIGH' ? 'text-status-error' :
+                          item.priority === 'MEDIUM' ? 'text-status-warning' : 'text-status-success'
                       }>
                         {item.priority}
                       </Box>
@@ -226,7 +227,8 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ projectId }) => {
           </FormField>
           <FormField label="Due Date">
             <Input
-              type="date"
+              inputMode="text"
+              type="text"
               value={newTask.dueDate || ''}
               onChange={({ detail }) =>
                 setNewTask(prev => ({ ...prev, dueDate: detail.value }))

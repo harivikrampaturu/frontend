@@ -17,8 +17,7 @@ interface ProjectAnalyticsProps {
 }
 
 export const ProjectAnalytics: React.FC<ProjectAnalyticsProps> = ({
-  projects,
-  resources
+  projects
 }) => {
   // Calculate project metrics
   const calculateMetrics = () => {

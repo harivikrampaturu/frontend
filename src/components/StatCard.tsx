@@ -14,7 +14,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, color }) =>
             items={[{ title, value, subtitle, color }]}
             cardDefinition={{
                 header: (item: StatCardProps) => (
-                    <Box variant="container" padding="s" textAlign="center">
+                    <Box variant="awsui-key-label" padding="s" textAlign="center">
                         <Box
                             fontSize="display-l"
                             fontWeight="bold"

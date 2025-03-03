@@ -11,7 +11,7 @@ import {
   Link
 } from '@cloudscape-design/components';
 import { useProjects } from '../hooks/useProjects';
-import { ProjectPhase } from '../types';
+import { ProjectPhase, Project } from '../types';
 
 export const Reports: React.FC = () => {
   const { projects, loading } = useProjects();
@@ -30,10 +30,11 @@ export const Reports: React.FC = () => {
       return acc;
     }, {} as Record<string, number>);
 
-  const timelineData = projects.map(project => ({
+  const timelineData: { x: Date; y: number; title: string; value: number }[] = projects.map(project => ({
+    x: new Date(project.startDate),
+    y: 1,
     title: project.name,
-    value: new Date(project.endDate).getTime() - new Date(project.startDate).getTime(),
-    type: 'bar'
+    value: 1
   }));
 
   return (
@@ -94,7 +95,7 @@ export const Reports: React.FC = () => {
         >
           <BarChart
             series={[{ title: "Duration (days)", type: "bar", data: timelineData }]}
-            xDomain={projects.map(p => p.name)}
+            xDomain={timelineData.map(d => d.x)}
             yDomain={[0, Math.max(...timelineData.map(d => d.value))]}
             hideFilter
             xTitle="Projects"
@@ -113,8 +114,9 @@ export const Reports: React.FC = () => {
               title: "Allocation %",
               type: "bar",
               data: Object.entries(resourceUtilization).map(([id, value]) => ({
-                title: id,
-                value
+                x: id,
+                y: value,
+                title: id
               }))
             }]}
             hideFilter
@@ -161,14 +163,14 @@ export const Reports: React.FC = () => {
 };
 
 // Helper function to calculate project progress
-const calculateProgress = (project: any) => {
+const calculateProgress = (project: Project) => {
   const start = new Date(project.startDate).getTime();
   const end = new Date(project.endDate).getTime();
   const now = Date.now();
-  
+
   if (now <= start) return 0;
   if (now >= end) return 100;
-  
+
   return Math.round(((now - start) / (end - start)) * 100);
 };
 

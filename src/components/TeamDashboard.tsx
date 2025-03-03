@@ -50,7 +50,7 @@ export const TeamDashboard: React.FC = () => {
           ]}
         >
           <TeamChat />
-          
+
           <Container
             header={
               <Header variant="h3">Team Members</Header>
@@ -73,8 +73,8 @@ export const TeamDashboard: React.FC = () => {
                     header: "Status",
                     content: item => (
                       <Box color={
-                        item.status === 'online' ? 'green' :
-                        item.status === 'busy' ? 'red' : 'grey'
+                        item.status === 'online' ? 'text-status-success' :
+                          item.status === 'busy' ? 'text-status-error' : 'text-status-inactive'
                       }>
                         {item.status}
                       </Box>

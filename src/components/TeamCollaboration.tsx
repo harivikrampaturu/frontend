@@ -31,7 +31,7 @@ interface Task {
 }
 
 export const TeamCollaboration: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('comments');
+  const [activeTab, setActiveTab] = useState<string>('comments');
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -61,11 +61,11 @@ export const TeamCollaboration: React.FC = () => {
                 </Button>
                 <Table
                   columnDefinitions={[
-                    { id: 'user', header: 'User', cell: item => item.userId },
-                    { id: 'comment', header: 'Comment', cell: item => item.content },
-                    { id: 'time', header: 'Time', cell: item => item.timestamp }
+                    { id: 'user', header: 'User', cell: (item: Comment) => item.userId },
+                    { id: 'comment', header: 'Comment', cell: (item: Comment) => item.content },
+                    { id: 'time', header: 'Time', cell: (item: Comment) => item.timestamp }
                   ]}
-                  items={[]} // Connect to your comments data
+                  items={[] as Comment[]}
                 />
               </SpaceBetween>
             )
@@ -80,12 +80,12 @@ export const TeamCollaboration: React.FC = () => {
                 </Button>
                 <Table
                   columnDefinitions={[
-                    { id: 'title', header: 'Title', cell: item => item.title },
-                    { id: 'assignee', header: 'Assignee', cell: item => item.assignee },
-                    { id: 'status', header: 'Status', cell: item => item.status },
-                    { id: 'dueDate', header: 'Due Date', cell: item => item.dueDate }
+                    { id: 'title', header: 'Title', cell: (item: Task) => item.title },
+                    { id: 'assignee', header: 'Assignee', cell: (item: Task) => item.assignee },
+                    { id: 'status', header: 'Status', cell: (item: Task) => item.status },
+                    { id: 'dueDate', header: 'Due Date', cell: (item: Task) => item.dueDate }
                   ]}
-                  items={[]} // Connect to your tasks data
+                  items={[] as Task[]}
                 />
               </SpaceBetween>
             )
@@ -133,7 +133,7 @@ export const TeamCollaboration: React.FC = () => {
           <FormField label="Title">
             <Input
               value={newTask.title}
-              onChange={({ detail }) => 
+              onChange={({ detail }) =>
                 setNewTask(prev => ({ ...prev, title: detail.value }))
               }
             />
@@ -141,16 +141,17 @@ export const TeamCollaboration: React.FC = () => {
           <FormField label="Assignee">
             <Input
               value={newTask.assignee}
-              onChange={({ detail }) => 
+              onChange={({ detail }) =>
                 setNewTask(prev => ({ ...prev, assignee: detail.value }))
               }
             />
           </FormField>
           <FormField label="Due Date">
             <Input
-              type="date"
+              inputMode="text"
+              type="text"
               value={newTask.dueDate}
-              onChange={({ detail }) => 
+              onChange={({ detail }) =>
                 setNewTask(prev => ({ ...prev, dueDate: detail.value }))
               }
             />

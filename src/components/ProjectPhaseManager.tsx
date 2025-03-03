@@ -3,7 +3,6 @@ import {
   Container,
   Header,
   SpaceBetween,
-  Timeline,
   Button,
   Modal,
   Form,
@@ -18,9 +17,9 @@ interface ProjectPhaseManagerProps {
   onPhaseUpdate: (projectId: string, phase: ProjectPhase, startDate: string, endDate: string) => void;
 }
 
-export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({ 
-  project, 
-  onPhaseUpdate 
+export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
+  project,
+  onPhaseUpdate
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedPhase, setSelectedPhase] = useState<ProjectPhase>(project.phase);
@@ -34,15 +33,15 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
     setShowModal(false);
   };
 
-  const getPhaseStatus = (phase: ProjectPhase) => {
-    const phases = Object.values(ProjectPhase);
-    const currentIndex = phases.indexOf(project.phase);
-    const phaseIndex = phases.indexOf(phase);
-
-    if (phaseIndex < currentIndex) return 'complete';
-    if (phaseIndex === currentIndex) return 'in-progress';
-    return 'upcoming';
-  };
+  /*   const getPhaseStatus = (phase: ProjectPhase) => {
+      const phases = Object.values(ProjectPhase);
+      const currentIndex = phases.indexOf(project.phase);
+      const phaseIndex = phases.indexOf(phase);
+  
+      if (phaseIndex < currentIndex) return 'complete';
+      if (phaseIndex === currentIndex) return 'in-progress';
+      return 'upcoming';
+    }; */
 
   return (
     <Container
@@ -59,14 +58,14 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
         </Header>
       }
     >
-      <Timeline
+      {/*     <Timeline
         items={Object.values(ProjectPhase).map(phase => ({
           id: phase,
           content: phase,
           status: getPhaseStatus(phase),
           time: phase === project.phase ? 'Current Phase' : ''
         }))}
-      />
+      /> */}
 
       <Modal
         visible={showModal}
@@ -84,7 +83,7 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
           <FormField label="Phase">
             <Select
               selectedOption={{ label: selectedPhase, value: selectedPhase }}
-              onChange={({ detail }) => 
+              onChange={({ detail }) =>
                 setSelectedPhase(detail.selectedOption.value as ProjectPhase)
               }
               options={Object.values(ProjectPhase).map(phase => ({

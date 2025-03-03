@@ -1,73 +1,53 @@
 import React from 'react';
 import {
-  Container,
-  Header,
-  BarChart,
-  Box,
-  SpaceBetween
+  PieChart,
 } from '@cloudscape-design/components';
-import { Resource, Project } from '../types';
-import { useProjects } from '../hooks/useProjects';
+import { Resource } from '../types';
 
 interface ResourceAllocationChartProps {
   resource: Resource;
 }
 
 export const ResourceAllocationChart: React.FC<ResourceAllocationChartProps> = ({ resource }) => {
-  const { projects } = useProjects();
-
-  const getAllocationsData = () => {
-    const allocations = projects.flatMap((project: Project) => 
-      project.resources.filter(allocation => 
-        allocation.resourceId === resource.id
-      )
-    );
-
-    return allocations.map(allocation => ({
-      title: projects.find(p => p.id === allocation.projectId)?.name || '',
-      value: allocation.percentage,
-      color: getColorForProject(allocation.projectId)
-    }));
-  };
-
-  const getColorForProject = (projectId: string) => {
-    // Generate consistent colors for projects
-    const colors = ['#0073bb', '#ec7211', '#d13212', '#00a1c9'];
-    const index = projectId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[index % colors.length];
-  };
+  const data = [
+    {
+      x: 'Allocated',
+      y: resource.allocation,
+      title: 'Allocated',
+      value: resource.allocation,
+      color: '#16db93'
+    },
+    {
+      x: 'Available',
+      y: Math.max(0, 100 - resource.allocation),
+      title: 'Available',
+      value: Math.max(0, 100 - resource.allocation),
+      color: '#e5e5e5'
+    }
+  ] as const;
 
   return (
-    <Container
-      header={
-        <Header variant="h2">
-          Resource Allocation
-        </Header>
-      }
-    >
-      <SpaceBetween size="l">
-        <Box>
-          <BarChart
-            series={[
-              {
-                title: "Project Allocation",
-                type: "bar",
-                data: getAllocationsData()
-              }
-            ]}
-            xDomain={getAllocationsData().map(d => d.title)}
-            yDomain={[0, 100]}
-            hideFilter
-            hideLegend
-            height={300}
-          />
-        </Box>
-        <Box>
-          Total Allocation: {getAllocationsData().reduce((acc, curr) => acc + curr.value, 0)}%
-        </Box>
-      </SpaceBetween>
-    </Container>
+    <PieChart
+      data={data}
+      detailPopoverContent={(datum) => [
+        { key: 'Resource', value: resource.name },
+        { key: datum.title || '', value: `${datum.value.toFixed(1)}%` }
+      ]}
+      i18nStrings={{
+        detailsValue: "Value",
+        detailsPercentage: "Percentage",
+        filterLabel: "Filter",
+        filterPlaceholder: "Filter data",
+        filterSelectedAriaLabel: "selected",
+        legendAriaLabel: "Legend",
+        chartAriaRoleDescription: "pie chart"
+      }}
+      ariaDescription={`Resource allocation chart for ${resource.name}`}
+      hideFilter={true}
+      size="medium"
+      variant="donut"
+    />
   );
 };
 
-export default ResourceAllocationChart; 
+export default ResourceAllocationChart;

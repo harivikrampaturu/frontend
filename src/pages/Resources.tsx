@@ -19,7 +19,7 @@ import { ResourceFilter, ResourceFilterCriteria } from '../components/ResourceFi
 export const Resources: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const { resources, loading, createResource, updateResource, deleteResource } = useResources();
+  const { resources, loading, createResource } = useResources();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -117,7 +117,7 @@ export const Resources: React.FC = () => {
                 variant="primary"
                 onClick={async () => {
                   try {
-                    await createResource(formData);
+                    await createResource(formData as Omit<Resource, 'id'>);
                     setShowCreateModal(false);
                     setFormData({
                       name: '',

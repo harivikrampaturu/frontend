@@ -4,7 +4,17 @@ import { Container, Header, SpaceBetween, Button, Table } from '@cloudscape-desi
 import { Project } from '../types';
 import GanttChart from '../components/GanttChart';
 import { useNotifications } from '../contexts/NotificationContext';
-import { ResourceManagement } from '../components/ResourceManagement';
+// import { ResourceManagement } from '../components/ResourceManagement';
+
+interface ProjectReport {
+    metrics: {
+        resourceUtilization: number;
+        timelineDeviation: number;
+        resourceCount: number;
+    };
+    risks: string[];
+    recommendations: string[];
+}
 
 export const ProjectDetails: React.FC = () => {
     const { id } = useParams();
@@ -12,7 +22,7 @@ export const ProjectDetails: React.FC = () => {
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const { addNotification } = useNotifications();
-    const [projectReport, setProjectReport] = useState<any>(null);
+    const [projectReport, setProjectReport] = useState<ProjectReport | null>(null);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -54,10 +64,10 @@ export const ProjectDetails: React.FC = () => {
                 setProjectReport(data);
             } catch (error) {
                 console.error('Error fetching project report:', error);
-                addNotification({
-                    type: 'error',
-                    content: 'Failed to load project report'
-                });
+                // addNotification({
+                //     type: 'error',
+                //     content: 'Failed to load project report'
+                // });
             }
         };
 
@@ -99,9 +109,9 @@ export const ProjectDetails: React.FC = () => {
                 </Container>
 
                 {/* Add ResourceManagement component */}
-                <ResourceManagement
+                {/* <ResourceManagement
                     projectId={id}
-                    onResourceAssigned={(resourceId, allocation) => {
+                    onResourceAssigned={() => {
                         addNotification({
                             type: 'success',
                             content: 'Resource assigned successfully'

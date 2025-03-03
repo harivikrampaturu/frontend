@@ -9,7 +9,8 @@ import {
   FormField,
   Select,
   Alert,
-  SpaceBetween
+  SpaceBetween,
+  Input
 } from '@cloudscape-design/components';
 import { Project } from '../types';
 
@@ -35,7 +36,7 @@ export const ProjectDependencies: React.FC<ProjectDependenciesProps> = ({
   onRemoveDependency
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const [newDependency, setNewDependency] = useState({
+  const [newDependency, setNewDependency] = useState<Omit<Dependency, 'id' | 'sourceProjectId'>>({
     targetProjectId: '',
     type: 'BLOCKS',
     description: ''
@@ -85,7 +86,7 @@ export const ProjectDependencies: React.FC<ProjectDependenciesProps> = ({
             {
               id: 'project',
               header: 'Dependent Project',
-              cell: item => 
+              cell: (item: Dependency) =>
                 allProjects.find(p => p.id === item.targetProjectId)?.name || ''
             },
             {
@@ -133,9 +134,9 @@ export const ProjectDependencies: React.FC<ProjectDependenciesProps> = ({
               selectedOption={
                 newDependency.targetProjectId
                   ? {
-                      label: allProjects.find(p => p.id === newDependency.targetProjectId)?.name || '',
-                      value: newDependency.targetProjectId
-                    }
+                    label: allProjects.find(p => p.id === newDependency.targetProjectId)?.name || '',
+                    value: newDependency.targetProjectId
+                  }
                   : null
               }
               onChange={({ detail }) =>
@@ -172,7 +173,7 @@ export const ProjectDependencies: React.FC<ProjectDependenciesProps> = ({
           <FormField label="Description">
             <Input
               value={newDependency.description}
-              onChange={({ detail }) =>
+              onChange={({ detail }: { detail: { value: string } }) =>
                 setNewDependency(prev => ({
                   ...prev,
                   description: detail.value

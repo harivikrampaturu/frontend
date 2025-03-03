@@ -13,4 +13,14 @@ export class ProjectService {
     const response = await axios.post(`${this.apiUrl}/projects`, project);
     return response.data;
   }
+
+  async updateProject(id: string, project: Partial<Project>): Promise<Project> {
+    const response = await axios.put(`${this.apiUrl}/projects/${id}`, project);
+    return response.data;
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await axios.delete(`${this.apiUrl}/projects/${id}`);
+  }
+
 } 

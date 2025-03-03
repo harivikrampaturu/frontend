@@ -37,10 +37,10 @@ export const ResourceOptimizer: React.FC<ResourceOptimizerProps> = ({
 
   const calculateUtilization = () => {
     const utilData = resources.map(resource => {
-      const allocations = projects.flatMap(p => 
+      const allocations = projects.flatMap(p =>
         p.resources.filter(a => a.resourceId === resource.id)
       );
-      
+
       const currentLoad = allocations.reduce((sum, a) => sum + a.percentage, 0);
       const recommendations = getRecommendations(currentLoad, allocations);
 
@@ -81,7 +81,7 @@ export const ResourceOptimizer: React.FC<ResourceOptimizerProps> = ({
           const resourceAllocations = projects.flatMap(p =>
             p.resources.filter(a => a.resourceId === u.resourceId)
           );
-          
+
           // Simple optimization: Scale down allocations proportionally
           const scale = 100 / u.currentLoad;
           return resourceAllocations.map(a => ({
@@ -136,12 +136,12 @@ export const ResourceOptimizer: React.FC<ResourceOptimizerProps> = ({
                 <ProgressBar
                   value={item.currentLoad}
                   label={`${item.currentLoad}%`}
-                  statusType={
-                    item.currentLoad > 100 
-                      ? 'error' 
-                      : item.currentLoad > 80 
-                        ? 'warning' 
-                        : 'success'
+                  status={
+                    item.currentLoad > 100
+                      ? "error"
+                      : item.currentLoad > 80
+                        ? "error"
+                        : "success"
                   }
                 />
               )

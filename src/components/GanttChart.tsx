@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gantt } from 'dhtmlx-gantt';
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
-import { Project, ResourceAllocation } from '../types';
+import { Project, ResourceAllocation, Task } from '../types';
 import { Container, Header } from '@cloudscape-design/components';
 
 interface GanttChartProps {

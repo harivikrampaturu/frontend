@@ -16,7 +16,7 @@ import {
 import { Project, ProjectPhase } from '../types';
 import { useProjects } from '../hooks/useProjects';
 import GanttChart from '../components/GanttChart';
-import { useNotifications } from '../contexts/NotificationContext';
+// import { useNotifications } from '../contexts/NotificationContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ResourceManagement } from '../components/ResourceManagement';
 import { Link } from 'react-router-dom';
@@ -24,8 +24,8 @@ import { Link } from 'react-router-dom';
 export const Projects: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const { projects, loading, createProject, setProjects } = useProjects();
-  const { addNotification } = useNotifications();
+  const { projects, loading, setProjects } = useProjects();
+  // const { addNotification } = useNotifications();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -201,6 +201,7 @@ export const Projects: React.FC = () => {
                 }
                 placeholder="YYYY/MM/DD"
                 expandToViewport
+                startOfWeek={1}
               />
             </FormField>
             <FormField label="End Date">
@@ -210,7 +211,10 @@ export const Projects: React.FC = () => {
                   setFormData(prev => ({ ...prev, endDate: detail.value }))
                 }
                 placeholder="YYYY/MM/DD"
-                minDate={formData.startDate}
+                openCalendarAriaLabel={selectedDate =>
+                  `Choose end date${selectedDate ? `, selected date is ${selectedDate}` : ''}`
+                }
+                {...(formData.startDate && { minDate: formData.startDate })}
                 expandToViewport
               />
             </FormField>

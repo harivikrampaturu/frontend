@@ -5,8 +5,7 @@ import {
   SpaceBetween,
   Input,
   Button,
-  Box,
-  ScrollableContainer
+  Box
 } from '@cloudscape-design/components';
 
 interface ChatMessage {
@@ -44,7 +43,7 @@ export const TeamChat: React.FC<TeamChatProps> = ({ projectId }) => {
     fetchMessages();
 
     return () => {
-      ws.current?.disconnect();
+      ws.current?.close();
     };
   }, [projectId]);
 
@@ -82,22 +81,16 @@ export const TeamChat: React.FC<TeamChatProps> = ({ projectId }) => {
 
   return (
     <Container
-      header={
-        <Header variant="h2">Team Chat</Header>
-      }
+      header={<Header variant="h2">Team Chat</Header>}
     >
       <SpaceBetween size="m">
-        <ScrollableContainer
-          height={400}
-          ref={scrollRef}
-        >
+        <Container>
           {messages.map(message => (
             <Box
               key={message.id}
               padding="s"
               margin="s"
-              backgroundColor={message.userId === 'currentUser' ? 'blue-100' : 'grey-100'}
-              borderRadius="s"
+              variant={message.userId === 'currentUser' ? 'awsui-key-label' : 'div'}
             >
               <SpaceBetween size="xs">
                 <Box color="text-body-secondary">
@@ -110,13 +103,13 @@ export const TeamChat: React.FC<TeamChatProps> = ({ projectId }) => {
               </SpaceBetween>
             </Box>
           ))}
-        </ScrollableContainer>
+        </Container>
 
         <SpaceBetween direction="horizontal" size="xs">
           <Input
             value={newMessage}
             onChange={({ detail }) => setNewMessage(detail.value)}
-            onKeyPress={e => e.key === 'Enter' && sendMessage()}
+            onKeyDown={({ detail }) => detail.key === 'Enter' && sendMessage()}
             placeholder="Type your message..."
           />
           <Button onClick={sendMessage}>Send</Button>

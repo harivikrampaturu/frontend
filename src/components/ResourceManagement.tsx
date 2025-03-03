@@ -53,9 +53,9 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
             setResources(data);
 
             // Calculate available resources based on current allocations
-            const available = data.filter(resource => {
+            const available = data.filter((resource: Resource) => {
                 const totalAllocation = resource.allocations?.reduce(
-                    (sum, alloc) => sum + alloc.allocation,
+                    (sum: number, alloc: ProjectAllocation) => sum + alloc.allocation,
                     0
                 ) || 0;
                 return resource.availability - totalAllocation >= 0;
@@ -188,20 +188,20 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
     };
 
     const columnDefinitions = [
-        { id: 'name', header: 'Name', cell: item => item.name },
-        { id: 'role', header: 'Role', cell: item => item.role },
-        { id: 'team', header: 'Team', cell: item => item.team },
+        { id: 'name', header: 'Name', cell: (item: Resource) => item.name },
+        { id: 'role', header: 'Role', cell: (item: Resource) => item.role },
+        { id: 'team', header: 'Team', cell: (item: Resource) => item.team },
         {
             id: 'allocation',
             header: 'Allocation',
-            cell: item => projectId
+            cell: (item: Resource) => projectId
                 ? `${item.allocations?.find(a => a.projectId === projectId)?.allocation || 0}%`
                 : `${item.availability}%`
         },
         {
             id: 'available',
             header: 'Available',
-            cell: item => `${getResourceAvailability(item)}%`
+            cell: (item: Resource) => `${getResourceAvailability(item)}%`
         },
         {
             id: 'actions',
@@ -220,7 +220,6 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
                         Edit
                     </Button>
                     <Button
-                        variant="danger"
                         onClick={() => handleDeleteAllocation(item.id)}
                     >
                         Remove
