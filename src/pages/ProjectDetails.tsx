@@ -4,6 +4,7 @@ import { Container, Header, SpaceBetween, Button, Table } from '@cloudscape-desi
 import { Project } from '../types';
 import GanttChart from '../components/GanttChart';
 import { useNotifications } from '../contexts/NotificationContext';
+import { ResourceManagement } from '../components/ResourceManagement';
 // import { ResourceManagement } from '../components/ResourceManagement';
 
 interface ProjectReport {
@@ -109,7 +110,7 @@ export const ProjectDetails: React.FC = () => {
                 </Container>
 
                 {/* Add ResourceManagement component */}
-                {/* <ResourceManagement
+                <ResourceManagement
                     projectId={id}
                     onResourceAssigned={() => {
                         addNotification({
