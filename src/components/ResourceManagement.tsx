@@ -26,6 +26,7 @@ interface Resource {
 interface ProjectAllocation {
     projectId: string;
     allocation: number;
+    percentage: number;
 }
 
 interface Props {
@@ -118,8 +119,17 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
         const resource = resources.find(r => r.id === resourceId);
         if (!resource) return false;
 
-        const available = getResourceAvailability(resource);
-        return value > 0 && value <= available;
+        // Calculate total allocation excluding current project
+        const totalOtherAllocations = resource.allocations?.reduce(
+            (sum, alloc) => alloc.projectId !== projectId ? sum + alloc.allocation : sum,
+            0
+        ) || 0;
+
+        // Calculate maximum available allocation (100% minus allocations to other projects)
+        const maxAvailable = 100 - totalOtherAllocations;
+
+        // Value should be greater than 0 and less than or equal to maxAvailable
+        return value > 0 && value <= maxAvailable;
     };
 
     const handleUpdateAllocation = async () => {
@@ -127,6 +137,10 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
         setIsEditing(true);
 
         try {
+            // Get current total allocation for this resource excluding current project
+            const currentResource = resources.find(r => r.id === editingResource.id);
+            if (!currentResource) throw new Error('Resource not found');
+
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/projects/${projectId}/resources/${editingResource.id}`,
                 {
@@ -136,12 +150,17 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
                 }
             );
 
+            const data = await response.json();
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update resource allocation');
+                // Handle 400 error specifically
+                if (response.status === 400) {
+                    throw new Error(
+                        `Cannot allocate ${editAllocation}%. Maximum available allocation is ${data.available}%`
+                    );
+                }
+                throw new Error(data.error || 'Failed to update resource allocation');
             }
 
-            await response.json();
             await fetchResources();
             setShowEditModal(false);
             setEditingResource(null);
@@ -193,15 +212,24 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
         { id: 'team', header: 'Team', cell: (item: Resource) => item.team },
         {
             id: 'allocation',
-            header: 'Allocation',
-            cell: (item: Resource) => projectId
-                ? `${item.allocations?.find(a => a.projectId === projectId)?.allocation || 0}%`
-                : `${item.availability}%`
+            header: 'Current Project',
+            cell: (item: Resource) => {
+                const currentAllocation = item.allocations?.find(a => a.projectId === projectId)?.allocation || 0;
+                return `${currentAllocation}%`;
+            }
+        },
+        {
+            id: 'totalAllocation',
+            header: 'Total Allocation',
+            cell: (item: Resource) => {
+                const total = item.allocations?.reduce((sum, alloc) => sum + alloc.percentage, 0) || 0;
+                return `${total}%`;
+            }
         },
         {
             id: 'available',
             header: 'Available',
-            cell: (item: Resource) => `${getResourceAvailability(item)}%`
+            cell: (item: Resource) => `${100 - (item.allocations?.reduce((sum, alloc) => sum + alloc.percentage, 0) || 0)}%`
         },
         {
             id: 'actions',
@@ -342,7 +370,17 @@ export const ResourceManagement: React.FC<Props> = ({ projectId, onResourceAssig
                                 disabled
                             />
                         </FormField>
-                        <FormField label="Allocation (%)">
+                        <FormField
+                            label="Allocation (%)"
+                            description={
+                                editingResource
+                                    ? `Maximum available allocation: ${100 - (editingResource.allocations?.reduce(
+                                        (sum, alloc) => alloc.projectId !== projectId ? sum + alloc.allocation : sum,
+                                        0
+                                    ) || 0)}%`
+                                    : ''
+                            }
+                        >
                             <Input
                                 type="number"
                                 value={editAllocation.toString()}

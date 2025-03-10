@@ -38,21 +38,25 @@ export const ResourceGanttChart: React.FC<ResourceGanttChartProps> = ({ resource
 
         // Prepare data for gantt
         const tasks = {
-            data: projects.filter(project => {
+            data: projects.map(project => {
+                // Find the allocation for this resource in this project
                 const allocation = project.resources?.find(r => r.resourceId === resource.id);
-                return allocation?.allocation && allocation.allocation > 0;
-            }).map(project => {
-                const allocation = project.resources?.find(r => r.resourceId === resource.id);
+
+                // Debug logs to see what's happening
+                console.log('Project:', project.name);
+                console.log('Resources:', project.resources);
+                console.log('Allocation found:', allocation);
+
                 return {
                     id: project.id,
                     text: project.name,
                     start_date: new Date(project.startDate),
                     end_date: new Date(project.endDate),
-                    allocation: allocation?.allocation || 0,
+                    allocation: allocation?.allocation || allocation?.percentage || 0,
                     phase: project.phase,
-                    progress: allocation ? allocation.allocation / 100 : 0
+                    progress: allocation ? (allocation.allocation || allocation.percentage || 0) / 100 : 0
                 };
-            })
+            }).filter(task => task.allocation > 0) // Only show projects with allocations
         };
 
         // Load data

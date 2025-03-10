@@ -164,10 +164,10 @@ const Dashboard: React.FC = () => {
               />
             </FormField>
 
-            {selectedResource && projects.length > 0 && (
+            {selectedResource && (
               <ResourceGanttChart
                 resource={selectedResource}
-                projects={projects.filter(p => p.resources?.some(r => r.resourceId === selectedResource.id))}
+                projects={projects}
               />
             )}
           </SpaceBetween>
