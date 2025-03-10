@@ -38,16 +38,19 @@ export const ResourceGanttChart: React.FC<ResourceGanttChartProps> = ({ resource
 
         // Prepare data for gantt
         const tasks = {
-            data: projects.map(project => {
+            data: projects.filter(project => {
+                const allocation = project.resources?.find(r => r.resourceId === resource.id);
+                return allocation?.allocation && allocation.allocation > 0;
+            }).map(project => {
                 const allocation = project.resources?.find(r => r.resourceId === resource.id);
                 return {
                     id: project.id,
                     text: project.name,
                     start_date: new Date(project.startDate),
                     end_date: new Date(project.endDate),
-                    allocation: allocation?.percentage || 0,
+                    allocation: allocation?.allocation || 0,
                     phase: project.phase,
-                    progress: allocation ? allocation.percentage / 100 : 0
+                    progress: allocation ? allocation.allocation / 100 : 0
                 };
             })
         };

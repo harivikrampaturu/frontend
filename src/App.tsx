@@ -7,6 +7,7 @@ import Projects from './pages/Projects';
 import Resources from './pages/Resources';
 // import Reports from './pages/Reports';
 import ProjectDetails from './pages/ProjectDetails';
+import ResourceDetails from './pages/ResourceDetails';
 import { NotificationProvider } from './contexts/NotificationContext';
 
 const App: React.FC = () => {
@@ -40,6 +41,7 @@ const App: React.FC = () => {
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/projects/:id" element={<ProjectDetails />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/resources/:id" element={<ResourceDetails />} />
                 {/* <Route path="/reports" element={<Reports />} /> */}
               </Routes>
             </ContentLayout>

@@ -9,19 +9,24 @@ interface ResourceAllocationChartProps {
 }
 
 export const ResourceAllocationChart: React.FC<ResourceAllocationChartProps> = ({ resource }) => {
+  // Calculate total allocation from all active project allocations
+  const totalAllocation = resource.allocations?.reduce((sum, allocation) => {
+    return sum + (allocation.allocation || 0);
+  }, 0) ?? 0;
+
   const data = [
     {
       x: 'Allocated',
-      y: resource.allocation,
+      y: totalAllocation,
       title: 'Allocated',
-      value: resource.allocation,
+      value: totalAllocation,
       color: '#16db93'
     },
     {
       x: 'Available',
-      y: Math.max(0, 100 - resource.allocation),
+      y: Math.max(0, 100 - totalAllocation),
       title: 'Available',
-      value: Math.max(0, 100 - resource.allocation),
+      value: Math.max(0, 100 - totalAllocation),
       color: '#e5e5e5'
     }
   ] as const;

@@ -89,7 +89,7 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
 
         {/* Phase Progress */}
         {Object.values(ProjectPhase).map(phase => (
-          <Box key={phase} padding="s">
+          <Box key={phase} padding="xs">
             <SpaceBetween size="xs">
               <StatusIndicator type={getPhaseStatus(phase)}>
                 {phase} {phase === project.phase && '(Current Phase)'}

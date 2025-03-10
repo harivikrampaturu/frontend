@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Header,
@@ -11,23 +11,87 @@ import {
   Input,
   Select,
   DatePicker,
-  // Link,
+  Pagination,
+  Box,
 } from '@cloudscape-design/components';
 import { Project, ProjectPhase } from '../types';
 import { useProjects } from '../hooks/useProjects';
 import GanttChart from '../components/GanttChart';
-// import { useNotifications } from '../contexts/NotificationContext';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+
 import { ResourceManagement } from '../components/ResourceManagement';
 import { Link } from 'react-router-dom';
+import TextFilter from "@cloudscape-design/components/text-filter";
+import CollectionPreferences from "@cloudscape-design/components/collection-preferences";
+import { TableProps } from "@cloudscape-design/components/table";
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString();
+};
 
 export const Projects: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const { projects, loading, setProjects } = useProjects();
-  // const { addNotification } = useNotifications();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [selectedProject] = useState<Project | null>(null);
+  const { projects, loading } = useProjects();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<Project[]>([]);
+  const [filteringText, setFilteringText] = useState("");
+  const [sortingField, setSortingField] = useState<TableProps.SortingColumn<Project> | undefined>({ sortingField: 'name' });
+  const [sortingDescending, setSortingDescending] = useState(false);
+  const [preferences, setPreferences] = useState({
+    pageSize: 10,
+    contentDisplay: [
+      { id: 'name', visible: true },
+      { id: 'phase', visible: true },
+      { id: 'startDate', visible: true },
+      { id: 'endDate', visible: true }
+    ]
+  });
+
+  // Filter and sort projects
+  const sortedAndFilteredItems = React.useMemo(() => {
+    let items = [...projects];
+
+    // Apply filtering
+    if (filteringText) {
+      items = items.filter(item => {
+        const searchText = filteringText.toLowerCase();
+        return (
+          item.name.toLowerCase().includes(searchText) ||
+          item.phase.toLowerCase().includes(searchText) ||
+          (item.description?.toLowerCase().includes(searchText))
+        );
+      });
+    }
+
+    // Apply sorting
+    return items.sort((a, b) => {
+      let aValue = sortingField ? a[sortingField.sortingField as keyof Project] : '';
+      let bValue = sortingField ? b[sortingField.sortingField as keyof Project] : '';
+
+      // Handle dates
+      if (sortingField?.sortingField === 'startDate' || sortingField?.sortingField === 'endDate') {
+        const aDate = aValue ? new Date(aValue as string).getTime() : 0;
+        const bDate = bValue ? new Date(bValue as string).getTime() : 0;
+        return sortingDescending ? bDate - aDate : aDate - bDate;
+      }
+
+      // Convert to strings for comparison
+      aValue = aValue !== null && aValue !== undefined ? String(aValue) : '';
+      bValue = bValue !== null && bValue !== undefined ? String(bValue) : '';
+
+      return sortingDescending
+        ? bValue.localeCompare(aValue)
+        : aValue.localeCompare(bValue);
+    });
+  }, [projects, filteringText, sortingField, sortingDescending]);
+
+  // Apply pagination
+  const paginatedItems = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * preferences.pageSize;
+    const endIndex = startIndex + preferences.pageSize;
+    return sortedAndFilteredItems.slice(startIndex, endIndex);
+  }, [sortedAndFilteredItems, currentPage, preferences.pageSize]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -37,38 +101,37 @@ export const Projects: React.FC = () => {
     description: ''
   });
 
-  useEffect(() => {
-    const projectId = searchParams.get('id');
-    if (projectId) {
-      const project = projects.find(p => p.id === projectId);
-      if (project) {
-        setSelectedProject(project);
-      }
-    }
-  }, [searchParams, projects]);
-
-  const handleCreateProject = async () => {
-    if (!formData.name) return;
-
-    const newProject = {
-      ...formData,
-      // Convert dates to ISO format before sending
-      startDate: formData.startDate ? new Date(formData.startDate).toISOString() : '',
-      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : '',
-      resources: [], // Initialize with empty resources array
-    };
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/projects`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProject)
-      });
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const content = e.target?.result;
+          if (typeof content === 'string') {
+            const projectData = JSON.parse(content);
+            // TODO: Add validation and processing of project data
+            console.log('Uploaded project data:', projectData);
+            // TODO: Add API call to process the uploaded file
+          }
+        } catch (error) {
+          console.error('Error parsing file:', error);
+          // TODO: Add proper error handling
+        }
+      };
+      reader.readAsText(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      // TODO: Add proper error handling
+    }
+  };
 
-      if (!response.ok) throw new Error('Failed to create project');
-
-      const data = await response.json();
-      setProjects(prev => [...prev, data]);
+  const handleCreateProject = async () => {
+    try {
+      // TODO: Add API call to create project
+      console.log('Creating project:', formData);
       setShowCreateModal(false);
       setFormData({
         name: '',
@@ -78,21 +141,24 @@ export const Projects: React.FC = () => {
         description: ''
       });
     } catch (error) {
-      console.error('Failed to create project:', error);
+      console.error('Error creating project:', error);
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Handle file upload logic
+  const handleTpmImport = async () => {
+    try {
+      const response = await fetch('/api/projects/import-tpm');
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to import TPM data');
+      }
+      // Refresh projects list after import
+      // This assumes your useProjects hook has a refetch method
+      // projects.refetch();
+    } catch (error) {
+      console.error('Error importing TPM data:', error);
+      // Add error handling (e.g., show error notification)
     }
-  };
-
-  // Helper function to format ISO date for display
-  const formatDate = (isoDate: string) => {
-    if (!isoDate) return isoDate || '';
-    return new Date(isoDate).toLocaleDateString();
   };
 
   return (
@@ -103,7 +169,7 @@ export const Projects: React.FC = () => {
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               <Button onClick={() => setShowCreateModal(true)}>Create Project</Button>
-              <Button>Import from TPM</Button>
+              <Button onClick={handleTpmImport}>Import from TPM</Button>
               <Button>Export to JIRA</Button>
               <input
                 type="file"
@@ -123,37 +189,114 @@ export const Projects: React.FC = () => {
     >
       <SpaceBetween size="l">
         <Table
-          loading={loading}
-          items={projects}
-          selectedItems={selectedProject ? [selectedProject] : []}
-          onSelectionChange={({ detail }) => {
-            const selected = detail.selectedItems[0] as Project;
-            if (selected) {
-              navigate(`/projects/${selected.id}`);
+          renderAriaLive={({ firstIndex, lastIndex, totalItemsCount }) =>
+            `Displaying projects ${firstIndex} to ${lastIndex} of ${totalItemsCount}`
+          }
+          selectedItems={selectedItems}
+          onSelectionChange={({ detail }) => setSelectedItems(detail.selectedItems)}
+          trackBy="id"
+          sortingColumn={sortingField}
+          sortingDescending={sortingDescending}
+          onSortingChange={({ detail }) => {
+            if (detail.sortingColumn.sortingField === sortingField?.sortingField) {
+              setSortingDescending(!sortingDescending);
+            } else {
+              setSortingField(detail.sortingColumn);
+              setSortingDescending(false);
             }
           }}
           columnDefinitions={[
             {
               id: 'name',
               header: 'Project Name',
-              cell: item => <Link to={`/projects/${item.id}`}>{item.name}</Link>
+              cell: item => <Link to={`/projects/${item.id}`}>{item.name}</Link>,
+              sortingField: 'name'
             },
             {
               id: 'phase',
               header: 'Phase',
-              cell: item => item.phase
+              cell: item => item.phase,
+              sortingField: 'phase'
             },
             {
               id: 'startDate',
               header: 'Start Date',
-              cell: item => formatDate(item.startDate)
+              cell: item => formatDate(item.startDate),
+              sortingField: 'startDate'
             },
             {
               id: 'endDate',
               header: 'End Date',
-              cell: item => formatDate(item.endDate)
+              cell: item => formatDate(item.endDate),
+              sortingField: 'endDate'
             }
           ]}
+          items={paginatedItems}
+          loading={loading}
+          loadingText="Loading projects"
+          filter={
+            <TextFilter
+              filteringPlaceholder="Find projects"
+              filteringText={filteringText}
+              onChange={({ detail }) => {
+                setFilteringText(detail.filteringText);
+                setCurrentPage(1); // Reset to first page on filter
+              }}
+              countText={`${sortedAndFilteredItems.length} matches`}
+            />
+          }
+          pagination={
+            <Pagination
+              currentPageIndex={currentPage}
+              pagesCount={Math.ceil(sortedAndFilteredItems.length / preferences.pageSize)}
+              onChange={({ detail }) => setCurrentPage(detail.currentPageIndex)}
+            />
+          }
+          preferences={
+            <CollectionPreferences
+              title="Preferences"
+              confirmLabel="Confirm"
+              cancelLabel="Cancel"
+              preferences={preferences}
+              onConfirm={({ detail }) => setPreferences({
+                ...detail,
+                pageSize: detail.pageSize || 10,
+                contentDisplay: detail.contentDisplay?.map(item => ({
+                  id: item.id,
+                  visible: item.visible
+                })) || [
+                    { id: 'name', visible: true },
+                    { id: 'phase', visible: true },
+                    { id: 'startDate', visible: true },
+                    { id: 'endDate', visible: true }
+                  ]
+              })}
+              pageSizePreference={{
+                title: "Page size",
+                options: [
+                  { value: 10, label: "10 projects" },
+                  { value: 20, label: "20 projects" },
+                  { value: 50, label: "50 projects" }
+                ]
+              }}
+              contentDisplayPreference={{
+                options: [
+                  { id: "name", label: "Project Name", alwaysVisible: true },
+                  { id: "phase", label: "Phase" },
+                  { id: "startDate", label: "Start Date" },
+                  { id: "endDate", label: "End Date" }
+                ]
+              }}
+            />
+          }
+          empty={
+            <Box margin={{ vertical: "xs" }} textAlign="center" color="inherit">
+              <SpaceBetween size="m">
+                <b>No projects</b>
+                <Button onClick={() => setShowCreateModal(true)}>Create project</Button>
+              </SpaceBetween>
+            </Box>
+          }
         />
 
         {selectedProject && (
