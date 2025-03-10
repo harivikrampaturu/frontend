@@ -8,7 +8,10 @@ import {
   Form,
   FormField,
   DatePicker,
-  Select
+  Select,
+  StatusIndicator,
+  Box,
+  StatusIndicatorProps
 } from '@cloudscape-design/components';
 import { Project, ProjectPhase } from '../types';
 
@@ -16,6 +19,15 @@ interface ProjectPhaseManagerProps {
   project: Project;
   onPhaseUpdate: (projectId: string, phase: ProjectPhase, startDate: string, endDate: string) => void;
 }
+
+const phaseDescriptions: Record<ProjectPhase, string> = {
+  PLANNING: 'Initial project setup and resource planning',
+  IN_PROGRESS: 'Active development and implementation',
+  COMPLETED: 'Project successfully delivered',
+  ON_HOLD: 'Project temporarily paused',
+  MAINTENANCE: 'Ongoing maintenance and support',
+  DEVELOPMENT: 'Core development phase'
+};
 
 export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
   project,
@@ -29,19 +41,27 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
   });
 
   const handlePhaseUpdate = () => {
+    if (!dates.startDate || !dates.endDate) {
+      return; // Add validation
+    }
+
     onPhaseUpdate(project.id, selectedPhase, dates.startDate, dates.endDate);
     setShowModal(false);
   };
 
-  /*   const getPhaseStatus = (phase: ProjectPhase) => {
-      const phases = Object.values(ProjectPhase);
-      const currentIndex = phases.indexOf(project.phase);
-      const phaseIndex = phases.indexOf(phase);
-  
-      if (phaseIndex < currentIndex) return 'complete';
-      if (phaseIndex === currentIndex) return 'in-progress';
-      return 'upcoming';
-    }; */
+  const getPhaseStatus = (phase: ProjectPhase): StatusIndicatorProps.Type => {
+    const phases = Object.values(ProjectPhase);
+    const currentIndex = phases.indexOf(project.phase);
+    const phaseIndex = phases.indexOf(phase);
+
+    if (phaseIndex < currentIndex) return 'success';
+    if (phaseIndex === currentIndex) return 'in-progress';
+    return 'pending';
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
   return (
     <Container
@@ -54,18 +74,33 @@ export const ProjectPhaseManager: React.FC<ProjectPhaseManagerProps> = ({
             </Button>
           }
         >
-          Project Timeline
+          Project Timeline & Phases
         </Header>
       }
     >
-      {/*     <Timeline
-        items={Object.values(ProjectPhase).map(phase => ({
-          id: phase,
-          content: phase,
-          status: getPhaseStatus(phase),
-          time: phase === project.phase ? 'Current Phase' : ''
-        }))}
-      /> */}
+      <SpaceBetween direction="vertical" size="s">
+        {/* Phase Timeline */}
+        <Box padding="s">
+          <SpaceBetween size="xs">
+            <div><strong>Project Duration:</strong></div>
+            <div>{formatDate(project.startDate)} - {formatDate(project.endDate)}</div>
+          </SpaceBetween>
+        </Box>
+
+        {/* Phase Progress */}
+        {Object.values(ProjectPhase).map(phase => (
+          <Box key={phase} padding="s">
+            <SpaceBetween size="xs">
+              <StatusIndicator type={getPhaseStatus(phase)}>
+                {phase} {phase === project.phase && '(Current Phase)'}
+              </StatusIndicator>
+              <Box color="text-body-secondary" fontSize="body-s">
+                {phaseDescriptions[phase]}
+              </Box>
+            </SpaceBetween>
+          </Box>
+        ))}
+      </SpaceBetween>
 
       <Modal
         visible={showModal}

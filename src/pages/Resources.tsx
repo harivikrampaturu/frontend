@@ -15,11 +15,14 @@ import { Resource, ResourceRole } from '../types';
 import { useResources } from '../hooks/useResources';
 import ResourceAllocationChart from '../components/ResourceAllocationChart';
 import { ResourceFilter, ResourceFilterCriteria } from '../components/ResourceFilter';
+import ResourceGanttChart from '../components/ResourceGanttChart';
+import { useProjects } from '../hooks/useProjects';
 
 export const Resources: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const { resources, loading, createResource } = useResources();
+  const { projects } = useProjects();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -100,7 +103,13 @@ export const Resources: React.FC = () => {
         />
 
         {selectedResource && (
-          <ResourceAllocationChart resource={selectedResource} />
+          <SpaceBetween size="l">
+            <ResourceAllocationChart resource={selectedResource} />
+            <ResourceGanttChart
+              resource={selectedResource}
+              projects={projects}
+            />
+          </SpaceBetween>
         )}
       </SpaceBetween>
 

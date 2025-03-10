@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Header, SpaceBetween, Button, Table } from '@cloudscape-design/components';
-import { Project } from '../types';
-import GanttChart from '../components/GanttChart';
+import { Project, ProjectPhase } from '../types';
 import { useNotifications } from '../contexts/NotificationContext';
 import { ResourceManagement } from '../components/ResourceManagement';
-// import { ResourceManagement } from '../components/ResourceManagement';
+import { ProjectPhaseManager } from '../components/ProjectPhaseManager';
 
 interface ProjectReport {
     metrics: {
@@ -75,6 +74,39 @@ export const ProjectDetails: React.FC = () => {
         fetchProjectReport();
     }, [project]);
 
+    const handlePhaseUpdate = async (
+        projectId: string,
+        phase: ProjectPhase,
+        startDate: string,
+        endDate: string
+    ) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/projects/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phase, startDate, endDate }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update project phase');
+            }
+
+            const updatedProject = await response.json();
+            setProject(updatedProject);
+            addNotification({
+                type: 'success',
+                content: 'Project phase updated successfully'
+            });
+        } catch (error) {
+            addNotification({
+                type: 'error',
+                content: `Failed to update project phase: ${error instanceof Error ? error.message : 'Unknown error'}`
+            });
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
     if (!project) return <div>Project not found</div>;
 
@@ -92,6 +124,14 @@ export const ProjectDetails: React.FC = () => {
             }
         >
             <SpaceBetween size="l">
+                {/* Add ProjectPhaseManager before the Project Details section */}
+                {project && (
+                    <ProjectPhaseManager
+                        project={project}
+                        onPhaseUpdate={handlePhaseUpdate}
+                    />
+                )}
+
                 {/* Project details */}
                 <Container header={<Header variant="h2">Project Details</Header>}>
                     <Table
@@ -162,8 +202,6 @@ export const ProjectDetails: React.FC = () => {
                     )}
                 </Container>
 
-                {/* Gantt Chart */}
-                <GanttChart project={project} />
             </SpaceBetween>
         </Container>
     );

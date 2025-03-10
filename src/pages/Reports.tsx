@@ -11,7 +11,7 @@ import {
   Link
 } from '@cloudscape-design/components';
 import { useProjects } from '../hooks/useProjects';
-import { ProjectPhase, Project } from '../types';
+import { ProjectPhase } from '../types';
 
 export const Reports: React.FC = () => {
   const { projects, loading } = useProjects();
@@ -30,19 +30,8 @@ export const Reports: React.FC = () => {
       return acc;
     }, {} as Record<string, number>);
 
-  const timelineData: { x: Date; y: number; title: string; value: number }[] = projects.map(project => ({
-    x: new Date(project.startDate),
-    y: 1,
-    title: project.name,
-    value: 1
-  }));
-
   return (
-    <Container
-      header={
-        <Header variant="h1">Project Reports & Analytics</Header>
-      }
-    >
+    <Container header={<Header variant="h1">Project Reports & Analytics</Header>}>
       <SpaceBetween size="l">
         {/* Key Metrics */}
         <ColumnLayout columns={3} variant="text-grid">
@@ -71,11 +60,7 @@ export const Reports: React.FC = () => {
         </ColumnLayout>
 
         {/* Project Phase Distribution */}
-        <Container
-          header={
-            <Header variant="h2">Projects by Phase</Header>
-          }
-        >
+        <Container header={<Header variant="h2">Projects by Phase</Header>}>
           <PieChart
             data={projectsByPhase}
             detailPopoverContent={(datum, sum) => [
@@ -87,28 +72,8 @@ export const Reports: React.FC = () => {
           />
         </Container>
 
-        {/* Project Timeline */}
-        <Container
-          header={
-            <Header variant="h2">Project Timelines</Header>
-          }
-        >
-          <BarChart
-            series={[{ title: "Duration (days)", type: "bar", data: timelineData }]}
-            xDomain={timelineData.map(d => d.x)}
-            yDomain={[0, Math.max(...timelineData.map(d => d.value))]}
-            hideFilter
-            xTitle="Projects"
-            yTitle="Duration"
-          />
-        </Container>
-
         {/* Resource Utilization */}
-        <Container
-          header={
-            <Header variant="h2">Resource Utilization</Header>
-          }
-        >
+        <Container header={<Header variant="h2">Resource Utilization</Header>}>
           <BarChart
             series={[{
               title: "Allocation %",
@@ -125,11 +90,7 @@ export const Reports: React.FC = () => {
         </Container>
 
         {/* Recent Updates */}
-        <Container
-          header={
-            <Header variant="h2">Recent Project Updates</Header>
-          }
-        >
+        <Container header={<Header variant="h2">Recent Project Updates</Header>}>
           <Cards
             items={projects.slice(0, 5)}
             loading={loading}
@@ -144,11 +105,6 @@ export const Reports: React.FC = () => {
                   content: item => item.phase
                 },
                 {
-                  id: "progress",
-                  header: "Progress",
-                  content: item => `${calculateProgress(item)}%`
-                },
-                {
                   id: "timeline",
                   header: "Timeline",
                   content: item => `${item.startDate} - ${item.endDate}`
@@ -160,18 +116,6 @@ export const Reports: React.FC = () => {
       </SpaceBetween>
     </Container>
   );
-};
-
-// Helper function to calculate project progress
-const calculateProgress = (project: Project) => {
-  const start = new Date(project.startDate).getTime();
-  const end = new Date(project.endDate).getTime();
-  const now = Date.now();
-
-  if (now <= start) return 0;
-  if (now >= end) return 100;
-
-  return Math.round(((now - start) / (end - start)) * 100);
 };
 
 export default Reports; 

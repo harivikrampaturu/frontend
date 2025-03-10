@@ -52,6 +52,9 @@ export const Projects: React.FC = () => {
 
     const newProject = {
       ...formData,
+      // Convert dates to ISO format before sending
+      startDate: formData.startDate ? new Date(formData.startDate).toISOString() : '',
+      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : '',
       resources: [], // Initialize with empty resources array
     };
 
@@ -84,6 +87,12 @@ export const Projects: React.FC = () => {
     if (file) {
       // Handle file upload logic
     }
+  };
+
+  // Helper function to format ISO date for display
+  const formatDate = (isoDate: string) => {
+    if (!isoDate) return isoDate || '';
+    return new Date(isoDate).toLocaleDateString();
   };
 
   return (
@@ -137,12 +146,12 @@ export const Projects: React.FC = () => {
             {
               id: 'startDate',
               header: 'Start Date',
-              cell: item => item.startDate
+              cell: item => formatDate(item.startDate)
             },
             {
               id: 'endDate',
               header: 'End Date',
-              cell: item => item.endDate
+              cell: item => formatDate(item.endDate)
             }
           ]}
         />

@@ -11,12 +11,14 @@ export const useProjects = () => {
 
   const fetchProjects = async () => {
     try {
-      setLoading(true);
-      const data = await projectService.getProjects();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/projects`);
+      const data = await response.json();
+      console.log('Fetched Projects:', data); // Debug log
       setProjects(data);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch projects');
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch projects');
     } finally {
       setLoading(false);
     }

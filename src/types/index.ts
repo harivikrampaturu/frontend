@@ -8,6 +8,7 @@ export interface Project {
   resources: ResourceAllocation[];
   jiraId?: string;
   tpmId?: string;
+  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
 }
 
 export interface Resource {
@@ -30,6 +31,8 @@ export interface ResourceAllocation {
   startDate: string;
   endDate: string;
   phase: ProjectPhase;
+  allocation: number;
+  resourceDetails?: Resource;
 }
 
 export enum ProjectPhase {
@@ -48,45 +51,7 @@ export enum ResourceRole {
   QA_ENGINEER = 'QA_ENGINEER',
   DEVOPS_ENGINEER = 'DEVOPS_ENGINEER',
   BUSINESS_ANALYST = 'BUSINESS_ANALYST'
-} 
-
-export interface Task {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  progress: number;
-  title?: string;
-  assignee?: string;
-  status?: string;
-  dueDate?: string;
 }
-
-export type DependencyType = 'BLOCKS' | 'REQUIRED_BY' | 'RELATED_TO';
-
-export interface Dependency {
-  id: string;
-  sourceProjectId: string;
-  targetProjectId: string;
-  type: DependencyType;
-  description: string;
-}
-
-export interface ResourceAllocation {
-  resourceId: string;
-  projectId: string;
-  percentage: number;
-}
-
-export interface Datum<T> {
-  x: T;
-  y: number;
-  title?: string;
-  value?: number;
-  color?: string;
-}
-
-export type Color = 'blue' | 'grey' | 'red' | 'green' | 'yellow' | 'orange';
 
 export interface Comment {
   id: string;
@@ -100,4 +65,38 @@ export interface ProjectService {
   createProject: (project: Omit<Project, 'id'>) => Promise<Project>;
   updateProject: (id: string, project: Partial<Project>) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
+}
+
+export type Color = 'blue' | 'grey' | 'red' | 'green' | 'yellow' | 'orange';
+
+export interface Datum<T> {
+  x: T;
+  y: number;
+  title?: string;
+  value?: number;
+  color?: string;
+}
+
+export interface GanttData {
+  data: GanttTask[];
+  links: GanttLink[];
+}
+
+export interface GanttTask {
+  id: string;
+  text: string;
+  start_date: string;
+  end_date: string;
+  progress: number;
+  parent?: string;
+  open?: boolean;
+  assignee?: string;
+  priority?: string;
+}
+
+export interface GanttLink {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
 }
