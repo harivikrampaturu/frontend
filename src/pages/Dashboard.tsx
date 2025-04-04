@@ -85,8 +85,8 @@ const Dashboard: React.FC = () => {
         </Container>
 
         {/* Charts Section */}
-        <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
-          <Container header={<Header variant="h2">Projects by Phase</Header>}>
+        <Grid gridDefinition={[{ colspan: 12 }, { colspan: 12 }]}>
+        {/*   <Container header={<Header variant="h2">Projects by Phase</Header>}>
             <PieChart
               data={projectsByPhase}
               detailPopoverContent={(datum, sum) => [
@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
               size="medium"
               hideFilter
             />
-          </Container>
+          </Container> */}
 
           <Container header={<Header variant="h2">Resource Allocation</Header>}>
             <SpaceBetween size="m">
