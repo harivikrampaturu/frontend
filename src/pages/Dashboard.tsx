@@ -4,7 +4,7 @@ import {
   Header,
   Grid,
   BarChart,
-  PieChart,
+  // PieChart,
   Cards,
   SpaceBetween,
   Select,
@@ -12,7 +12,7 @@ import {
 } from '@cloudscape-design/components';
 import { useProjects } from '../hooks/useProjects';
 import { useResources } from '../hooks/useResources';
-import { ProjectPhase, Resource } from '../types';
+import { Resource } from '../types'; // ProjectPhase
 import { Link } from 'react-router-dom';
 import StatCard from '../components/StatCard';
 import ResourceGanttChart from '../components/ResourceGanttChart';
@@ -23,10 +23,10 @@ const Dashboard: React.FC = () => {
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
 
-  const projectsByPhase = Object.values(ProjectPhase).map(phase => ({
-    title: phase,
-    value: projects.filter(p => p.phase === phase).length
-  }));
+  /*   const projectsByPhase = Object.values(ProjectPhase).map(phase => ({
+      title: phase,
+      value: projects.filter(p => p.phase === phase).length
+    })); */
 
   const resourceUtilization = resources
     .filter(resource => {
@@ -86,7 +86,7 @@ const Dashboard: React.FC = () => {
 
         {/* Charts Section */}
         <Grid gridDefinition={[{ colspan: 12 }, { colspan: 12 }]}>
-        {/*   <Container header={<Header variant="h2">Projects by Phase</Header>}>
+          {/*   <Container header={<Header variant="h2">Projects by Phase</Header>}>
             <PieChart
               data={projectsByPhase}
               detailPopoverContent={(datum, sum) => [
