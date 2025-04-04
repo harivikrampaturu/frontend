@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Header, SpaceBetween, Button, Table } from '@cloudscape-design/components';
-import { Project, ProjectPhase } from '../types';
+import { Project } from '../types'; // ProjectPhase
 import { useNotifications } from '../contexts/NotificationContext';
 import { ResourceManagement } from '../components/ResourceManagement';
-import { ProjectPhaseManager } from '../components/ProjectPhaseManager';
+// import { ProjectPhaseManager } from '../components/ProjectPhaseManager';
 
 interface ProjectReport {
     metrics: {
@@ -74,7 +74,7 @@ export const ProjectDetails: React.FC = () => {
         fetchProjectReport();
     }, [project]);
 
-    const handlePhaseUpdate = async (
+    /* const handlePhaseUpdate = async (
         projectId: string,
         phase: ProjectPhase,
         startDate: string,
@@ -105,7 +105,7 @@ export const ProjectDetails: React.FC = () => {
                 content: `Failed to update project phase: ${error instanceof Error ? error.message : 'Unknown error'}`
             });
         }
-    };
+    }; */
 
     if (loading) return <div>Loading...</div>;
     if (!project) return <div>Project not found</div>;
@@ -125,12 +125,12 @@ export const ProjectDetails: React.FC = () => {
         >
             <SpaceBetween size="l">
                 {/* Add ProjectPhaseManager before the Project Details section */}
-                {project && (
+                {/* {project && (
                     <ProjectPhaseManager
                         project={project}
                         onPhaseUpdate={handlePhaseUpdate}
                     />
-                )}
+                )} */}
 
                 {/* Project details */}
                 <Container header={<Header variant="h2">Project Details</Header>}>
